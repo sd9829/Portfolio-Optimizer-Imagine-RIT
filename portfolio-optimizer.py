@@ -6,10 +6,10 @@ import matplotlib.pyplot as plt
 import warnings
 warnings.filterwarnings("ignore")
 
-TRADING_DAYS = 252
+TRADING_DAYS = 252  # number of trading days in a year; can be parameterized?
 RISK_FREE_RATE = 0.05  # annualized
 
-# STEP 1: Load tickers
+# STEP 1: Load tickers; data cleaning
 file_path = "Final_Companies_with_Latest_Prices.xlsx"
 df = pd.read_excel(file_path)
 df.columns = df.columns.str.strip()
@@ -19,7 +19,7 @@ print(f"Loaded {len(tickers)} tickers across {df['Sector'].nunique()} sectors")
 
 # STEP 2: Download historical prices (yfinance 1.3+)
 start_date = "2020-01-01"
-end_date   = "2024-01-01"
+end_date   = "2024-01-01"   # also can be paramterized
 
 raw = yf.download(tickers, start=start_date, end=end_date, auto_adjust=True)
 
@@ -35,6 +35,12 @@ price_data = price_data.dropna(axis=1, how="all").ffill().dropna()
 print(f"Assets with full data: {price_data.shape[1]}  |  Trading days: {price_data.shape[0]}")
 
 # STEP 3: Daily returns -> annualised parameters
+"""
+  Computes daily percentage returns from the price series, then annualizes them:
+  - mu — expected annual return for each asset (mean daily return × 252)
+  - Sigma — annualized covariance matrix (daily cov × 252), capturing how assets move together
+  - n — number of assets
+"""
 returns = price_data.pct_change().dropna()
 
 mu    = returns.mean().values * TRADING_DAYS
@@ -46,8 +52,22 @@ if n == 0:
 
 print(f"\nAssets used in optimisation: {n}")
 
-# STEP 4: Helper - solve minimum-variance for a given target return
+# STEP 4: Helper - solve minimum-variance for a given target return - this can be easily customized
 def min_variance_portfolio(mu, Sigma, target_return):
+    """
+    Given a target return, it finds the portfolio with the lowest possible risk
+    that still meets that return — the definition of an efficient portfolio.
+
+      It sets up a convex optimization problem using cvxpy:
+      - Variable: w — the weight vector (one weight per asset)
+      - Objective: minimize w^T Σ w (portfolio variance)
+      - Constraints:
+        - sum(w) == 1 — weights must sum to 100%
+        - mu @ w >= target_return — must hit the target return
+        - w >= 0 — no short selling allowed
+
+      Returns the weights, realized return, and standard deviation, or None if no feasible solution exists.
+    """
     n = len(mu)
     w = cp.Variable(n)
     objective = cp.Minimize(cp.quad_form(w, Sigma))
@@ -72,6 +92,12 @@ ret_max = float(np.max(mu))
 target_returns = np.linspace(ret_min, ret_max, 60)
 
 # STEP 6: Build efficient frontier
+"""
+Calls min_variance_portfolio 60 times across evenly spaced target 
+returns between ret_min and ret_max. Each call gives one point on 
+the frontier. Stores the resulting return, risk, Sharpe ratio, 
+and weights for every feasible point.
+"""
 frontier_ret, frontier_std, frontier_sharpe = [], [], []
 frontier_weights = []
 
