@@ -9,6 +9,20 @@ warnings.filterwarnings("ignore")
 TRADING_DAYS = 252  # number of trading days in a year; can be parameterized?
 RISK_FREE_RATE = 0.05  # annualized
 
+# 4/21 meeting notes:
+
+# make it customizable to add more stock / ticker - look up ticker symbol and include it
+# asking participants how much money to invest - give a number
+# create chits (piece of paper) with multiple industries - eg IT, real estate etc - they pick one
+# create the best performing portfolio from stocks from each of them
+# UI SCREEN: - enter number and we shall select the industry they have picked
+# next screen will contain bubbles of stocks they choose
+
+# and then ask claude to choose from the list of stocks to enter into OUR machine
+
+
+# edits - make it an option to make investing into aggressive stocks? 
+
 # STEP 1: Load tickers; data cleaning
 file_path = "Final_Companies_with_Latest_Prices.xlsx"
 df = pd.read_excel(file_path)
