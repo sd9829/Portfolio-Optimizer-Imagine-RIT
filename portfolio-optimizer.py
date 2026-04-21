@@ -47,13 +47,11 @@ if n == 0:
 print(f"\nAssets used in optimisation: {n}")
 
 # STEP 4: Helper - solve minimum-variance for a given target return
-def min_variance_portfolio(mu, Sigma, target_return, allow_short=False):
+def min_variance_portfolio(mu, Sigma, target_return):
     n = len(mu)
     w = cp.Variable(n)
     objective = cp.Minimize(cp.quad_form(w, Sigma))
-    constraints = [cp.sum(w) == 1, mu @ w >= target_return]
-    if not allow_short:
-        constraints.append(w >= 0)
+    constraints = [cp.sum(w) == 1, mu @ w >= target_return, w >= 0]
     prob = cp.Problem(objective, constraints)
     prob.solve(solver=cp.CLARABEL)
     if prob.status not in ("optimal", "optimal_inaccurate") or w.value is None:
