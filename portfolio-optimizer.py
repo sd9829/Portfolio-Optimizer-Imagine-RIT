@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import warnings
 warnings.filterwarnings("ignore")
 
-TRADING_DAYS = 252  # number of trading days in a year; can be parameterized?
+TRADING_DAYS = 252  # number of trading days in a year; can be parameterized - no changes here
 RISK_FREE_RATE = 0.05  # annualized
 
 # 4/21 meeting notes:
@@ -21,7 +21,8 @@ RISK_FREE_RATE = 0.05  # annualized
 # and then ask claude to choose from the list of stocks to enter into OUR machine
 
 
-# edits - make it an option to make investing into aggressive stocks? 
+# edits - make it an option to make investing into aggressive stocks?
+# shocks - tech boom; market crash etc
 
 # STEP 1: Load tickers; data cleaning
 file_path = "Final_Companies_with_Latest_Prices.xlsx"
