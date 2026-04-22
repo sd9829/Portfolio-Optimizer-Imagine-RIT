@@ -27,9 +27,15 @@ Python runs the math and optimization engine.
 4. **IMPORTANT:** On the first screen of the installer, check the box that says **"Add Python to PATH"** before clicking Install
 5. Click **Install Now**
 
-To verify it worked, open PowerShell and type:
+To verify it worked, open PowerShell (Windows) / Terminal (Mac) and type:
+
+Windows:
 ```
 py --version
+```
+Mac:
+```
+python3 --version
 ```
 You should see something like `Python 3.12.3`
 
@@ -42,9 +48,9 @@ Node.js runs the frontend (the visual part of the website).
 1. Go to **https://nodejs.org**
 2. Click the **"LTS"** button (the left one — it says "Recommended for most users")
 3. Run the installer with all default settings — just keep clicking Next
-4. **Restart PowerShell** after installation finishes
+4. **Restart PowerShell (Windows) / Terminal (Mac)** after installation finishes
 
-To verify it worked, open a fresh PowerShell and type:
+To verify it worked, open a fresh PowerShell (Windows) / Terminal (Mac) and type:
 ```
 node --version
 npm --version
@@ -55,31 +61,48 @@ Both should print version numbers (e.g. `v20.11.0` and `10.2.4`)
 
 ## How to Run the App
 
-Every time you want to use the app, follow these steps. You need **two PowerShell windows open at the same time.**
+Every time you want to use the app, follow these steps. You need **two PowerShell (Windows) / Terminal (Mac) windows open at the same time.**
 
 ---
 
-### Step 1 — Open PowerShell
+### Step 1 — Open a Terminal
 
-Press `Windows key + S`, type **PowerShell**, and open it.
+Windows: Press `Windows key + S`, type **PowerShell**, and open it.
+Mac: Press `Cmd + Space`, type **Terminal**, and open it.
 
 ---
 
 ### Step 2 — Start the Backend (the math engine)
 
-In your **first PowerShell window**, paste these commands one at a time and press Enter after each:
+In your **first PowerShell / Terminal window**, paste these commands one at a time and press Enter after each:
 
+Windows:
 ```
 cd C:\GitHub\Portfolio-Optimizer-Imagine-RIT\backend
 ```
+Mac:
+```
+cd ~/GitHub/Portfolio-Optimizer-Imagine-RIT/backend
+```
+
+Windows:
 ```
 py -m pip install -r requirements.txt
+```
+Mac:
+```
+pip3 install -r requirements.txt
 ```
 
 > This installs the required Python libraries. You only need to do this once — skip it next time.
 
+Windows:
 ```
 py -m uvicorn main:app --reload --port 8000
+```
+Mac:
+```
+uvicorn main:app --reload --port 8000
 ```
 
 You should see output like:
@@ -94,12 +117,20 @@ INFO:     Application startup complete.
 
 ### Step 3 — Start the Frontend (the visual interface)
 
-Open a **second PowerShell window** (right-click PowerShell in the taskbar and choose "New window").
+Open a **second PowerShell (Windows) / Terminal (Mac) window**.
+
+Windows: right-click PowerShell in the taskbar → "New window"
+Mac: press `Cmd + T` to open a new tab in Terminal, or open a new Terminal window
 
 Paste these commands one at a time:
 
+Windows:
 ```
 cd C:\GitHub\Portfolio-Optimizer-Imagine-RIT\frontend
+```
+Mac:
+```
+cd ~/GitHub/Portfolio-Optimizer-Imagine-RIT/frontend
 ```
 ```
 npm install
@@ -159,7 +190,7 @@ The app will load and you'll see all 108 companies as bubbles grouped by sector.
 
 ## Shutting Down
 
-When you're done, go to each PowerShell window and press `Ctrl + C` to stop the servers.
+When you're done, go to each PowerShell / Terminal window and press `Ctrl + C` (Windows) / `Cmd + C` (Mac) to stop the servers.
 
 ---
 
@@ -169,7 +200,7 @@ When you're done, go to each PowerShell window and press `Ctrl + C` to stop the 
 Use `py -m pip` instead of `pip`
 
 **"npm is not recognized"**
-Node.js is not installed or PowerShell wasn't restarted after installing it. Close and reopen PowerShell, then try again.
+Node.js is not installed or PowerShell / Terminal wasn't restarted after installing it. Close and reopen the window, then try again.
 
 **The browser shows "This site can't be reached"**
 Make sure both PowerShell windows are still running. If either was closed, restart that server.
