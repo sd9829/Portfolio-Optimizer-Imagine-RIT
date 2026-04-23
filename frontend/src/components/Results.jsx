@@ -1,12 +1,15 @@
+import { useState } from 'react'
 import {
   ScatterChart, Scatter, XAxis, YAxis, CartesianGrid,
   Tooltip, ReferenceDot, ResponsiveContainer,
   BarChart, Bar, Cell, LabelList,
 } from 'recharts'
+import SpinWheel from './SpinWheel'
 
 const pct = v => `${(v * 100).toFixed(1)}%`
 
 export default function Results({ results, selected, onBack }) {
+  const [showWheel, setShowWheel] = useState(false)
   const { optimal, min_variance, frontier } = results
 
   const frontierData = frontier.map(p => ({
@@ -116,6 +119,12 @@ export default function Results({ results, selected, onBack }) {
           )
         }
       </section>
+
+      <div className="gamble-section">
+        <button className="btn-gamble" onClick={() => setShowWheel(true)}>GAMBLE? 👀</button>
+      </div>
+
+      {showWheel && <SpinWheel onClose={() => setShowWheel(false)} />}
     </div>
   )
 }

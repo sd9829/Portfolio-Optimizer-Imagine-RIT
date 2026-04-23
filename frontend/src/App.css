@@ -242,3 +242,125 @@ body {
   font-size: 14px;
   padding: 20px 0;
 }
+
+.gamble-section {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0 16px;
+}
+
+.btn-gamble {
+  background: none;
+  border: 2px solid #e05c5c;
+  color: #e05c5c;
+  padding: 14px 40px;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btn-gamble:hover {
+  background: #e05c5c;
+  color: #fff;
+}
+
+/* ── Spin wheel ── */
+.wheel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.wheel-modal {
+  background: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  padding: 32px 40px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+  min-width: 440px;
+}
+
+.wheel-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.wheel-close:hover { color: #fff; }
+
+.wheel-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.3px;
+}
+
+.wheel-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.wheel-pointer {
+  font-size: 26px;
+  color: #fff;
+  line-height: 1;
+  margin-bottom: -6px;
+  z-index: 1;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+}
+
+.btn-spin {
+  background: #fff;
+  color: #0f0f0f;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 48px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.btn-spin:hover:not(:disabled) { opacity: 0.85; }
+.btn-spin:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.wheel-result {
+  text-align: center;
+  animation: fadeIn 0.4s ease;
+}
+
+.wheel-result p {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.wheel-result strong {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
