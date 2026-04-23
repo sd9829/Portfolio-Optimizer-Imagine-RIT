@@ -19,7 +19,7 @@ def optimize(tickers: list) -> dict | None:
         price_data = raw[["Close"]]
 
     price_data = price_data.dropna(axis=1, how="all").ffill().dropna()
-    if price_data.shape[1] < 2:
+    if price_data.shape[1] < 4:
         return None
 
     returns = price_data.pct_change().dropna()
@@ -28,14 +28,14 @@ def optimize(tickers: list) -> dict | None:
     n = len(mu)
     tickers_clean = list(price_data.columns)
 
-    # Prevent any stock from receiving exactly zero weight
-    min_weight = 1e-4
+    min_weight = 0.10
+    max_weight = 0.33
 
     # Global minimum variance (lower return bound)
     w_mv = cp.Variable(n)
     prob_mv = cp.Problem(
         cp.Minimize(cp.quad_form(w_mv, Sigma)),
-        [cp.sum(w_mv) == 1, w_mv >= min_weight]
+        [cp.sum(w_mv) == 1, w_mv >= min_weight, w_mv <= max_weight]
     )
     try:
         prob_mv.solve(solver=cp.CLARABEL)
@@ -54,7 +54,7 @@ def optimize(tickers: list) -> dict | None:
         w = cp.Variable(n)
         prob = cp.Problem(
             cp.Minimize(cp.quad_form(w, Sigma)),
-            [cp.sum(w) == 1, mu @ w >= tr, w >= min_weight]
+            [cp.sum(w) == 1, mu @ w >= tr, w >= min_weight, w <= max_weight]
         )
         try:
             prob.solve(solver=cp.CLARABEL)
