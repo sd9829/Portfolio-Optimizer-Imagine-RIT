@@ -28,7 +28,7 @@ def optimize(tickers: list) -> dict | None:
     n = len(mu)
     tickers_clean = list(price_data.columns)
 
-    min_weight = 0.10
+    min_weight = 0.01
     max_weight = 0.33
 
     # Global minimum variance (lower return bound)
