@@ -29,7 +29,7 @@ def optimize(tickers: list) -> dict | None:
     tickers_clean = list(price_data.columns)
 
     # Prevent any stock from receiving exactly zero weight
-    min_weight = 1e-6
+    min_weight = 1e-4
 
     # Global minimum variance (lower return bound)
     w_mv = cp.Variable(n)
@@ -37,7 +37,10 @@ def optimize(tickers: list) -> dict | None:
         cp.Minimize(cp.quad_form(w_mv, Sigma)),
         [cp.sum(w_mv) == 1, w_mv >= min_weight]
     )
-    prob_mv.solve(solver=cp.CLARABEL)
+    try:
+        prob_mv.solve(solver=cp.CLARABEL)
+    except cp.SolverError:
+        return None
     if w_mv.value is None:
         return None
 
@@ -53,7 +56,10 @@ def optimize(tickers: list) -> dict | None:
             cp.Minimize(cp.quad_form(w, Sigma)),
             [cp.sum(w) == 1, mu @ w >= tr, w >= min_weight]
         )
-        prob.solve(solver=cp.CLARABEL)
+        try:
+            prob.solve(solver=cp.CLARABEL)
+        except cp.SolverError:
+            continue
         if prob.status not in ("optimal", "optimal_inaccurate") or w.value is None:
             continue
         wv = w.value
