@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Results — Portfolio Optimizer</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07091a;--bg2:#0b0d20;--sf:#0f1428;--sf2:#141a35;
+  --bd:#1a2340;--bd2:#243060;
+  --tx:#d8e2f8;--mu:#4e6290;--mu2:#7a96c8;
+  --a:#4b82f5;--a2:#9b6bf5;--ok:#10d08a;--er:#f04055;--wa:#f5a623;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
+@keyframes barFill{from{width:0}to{width:var(--w)}}
+@keyframes spinIdle{to{transform:rotate(360deg)}}
+@keyframes resultPop{0%{transform:scale(.8);opacity:0}70%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+
+html,body{min-height:100%;background:var(--bg);color:var(--tx)}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+
+header{height:60px;background:var(--bg2);border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;gap:16px;padding:0 26px;position:sticky;top:0;z-index:10}
+.back{display:flex;align-items:center;gap:7px;color:var(--mu2);text-decoration:none;
+  font-size:13px;padding:8px 15px;border-radius:9px;border:1px solid var(--bd);transition:all .2s}
+.back:hover{color:var(--tx);border-color:var(--bd2);background:var(--sf)}
+header h1{font-size:17px;font-weight:800;letter-spacing:-.4px}
+header h1 em{font-style:normal;color:var(--a)}
+
+main{max-width:1380px;margin:0 auto;padding:36px 26px 60px}
+.prow{display:flex;gap:26px}
+.prow.single{max-width:740px;margin:0 auto}
+.pcol{flex:1;min-width:0;animation:fadeUp .4s ease both}
+.pcol:nth-child(3){animation-delay:.12s}
+.divider{width:1px;background:var(--bd);flex-shrink:0}
+
+/* column header */
+.col-head{display:flex;align-items:center;gap:12px;margin-bottom:24px;
+  padding-bottom:16px;border-bottom:2px solid}
+.col-head.c1{border-color:var(--a)}
+.col-head.c2{border-color:var(--a2)}
+.col-pip{width:14px;height:14px;border-radius:50%}
+.col-head h2{font-size:21px;font-weight:800;letter-spacing:-.4px}
+
+/* cards */
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:16px;
+  padding:22px;margin-bottom:16px;transition:border-color .2s,transform .2s}
+.card:hover{border-color:var(--bd2)}
+.card-title{font-size:10px;font-weight:800;text-transform:uppercase;
+  letter-spacing:1.8px;color:var(--mu);margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.card-title::after{content:'';flex:1;height:1px;background:var(--bd)}
+
+/* stat grid */
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.stat{background:var(--bg2);border:1px solid var(--bd);border-radius:11px;
+  padding:15px;transition:all .2s;cursor:default}
+.stat:hover{border-color:var(--bd2);transform:translateY(-2px)}
+.stat-label{font-size:11px;color:var(--mu);margin-bottom:7px;letter-spacing:.3px}
+.stat-val{font-size:21px;font-weight:800;letter-spacing:-.5px;line-height:1}
+.adj-pill{margin-top:8px;padding:4px 8px;border-radius:6px;
+  font-size:11px;font-weight:700;display:none}
+.adj-pill.show{display:inline-flex;align-items:center;gap:4px}
+
+/* weights */
+.wtable{width:100%;border-collapse:collapse;margin-top:10px;font-size:13px}
+.wtable th{color:var(--mu);font-weight:700;font-size:10px;padding:8px 4px;
+  border-bottom:1px solid var(--bd);text-transform:uppercase;letter-spacing:.5px}
+.wtable td{padding:10px 4px;border-bottom:1px solid rgba(255,255,255,.03);vertical-align:middle}
+.wtable tr:last-child td{border:none}
+.wtable tr:hover td{background:rgba(255,255,255,.018)}
+.w-tick{font-weight:800;font-size:13.5px}
+.w-pct{text-align:right;font-weight:700;padding-right:12px;font-size:13px;white-space:nowrap}
+.bar-bg{height:8px;border-radius:4px;background:rgba(255,255,255,.07);min-width:60px;overflow:hidden}
+.bar-fill{height:8px;border-radius:4px;transition:width 1s cubic-bezier(.34,1.2,.64,1)}
+
+/* frontier */
+canvas.frontier{display:block;width:100%;height:220px}
+.legend{display:flex;gap:16px;margin-top:10px;font-size:12px;color:var(--mu);flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:5px}
+.ldot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* spin footer */
+.spin-section{border-top:1px solid var(--bd);margin-top:36px;padding:40px 0;text-align:center}
+.spin-section h3{font-size:18px;font-weight:800;margin-bottom:6px;letter-spacing:-.3px}
+.spin-section p{font-size:13px;color:var(--mu);margin-bottom:24px}
+.spinbtn{display:inline-flex;align-items:center;gap:10px;padding:15px 40px;
+  background:linear-gradient(130deg,#f59e0b,#ef4444);color:#fff;border:none;
+  border-radius:13px;font-size:16px;font-weight:800;cursor:pointer;
+  transition:all .25s;box-shadow:0 4px 24px rgba(245,158,11,.25);letter-spacing:-.2px}
+.spinbtn:hover{transform:translateY(-3px);box-shadow:0 10px 32px rgba(245,158,11,.4)}
+.spinbtn:active{transform:translateY(0)}
+.spinbtn-ico{font-size:22px;animation:spinIdle 4s linear infinite}
+
+/* modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(5,7,18,.88);backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;z-index:100;animation:fadeIn .2s ease}
+.modal-backdrop.hidden{display:none}
+.modal{background:var(--sf);border:1px solid var(--bd2);border-radius:22px;
+  padding:30px 28px;width:520px;max-width:96vw;
+  display:flex;flex-direction:column;align-items:center;gap:20px;
+  animation:scaleIn .25s cubic-bezier(.34,1.3,.64,1)}
+.modal-title{font-size:20px;font-weight:800;text-align:center;letter-spacing:-.4px}
+.modal-title em{font-style:normal;color:var(--wa)}
+.wheel-wrap{position:relative;width:340px;height:340px;max-width:100%}
+#wheelCanvas{display:block;width:100%;height:100%}
+.wheel-ptr{position:absolute;top:-4px;left:50%;transform:translateX(-50%);
+  width:0;height:0;border-left:11px solid transparent;border-right:11px solid transparent;
+  border-top:26px solid #e8eef8;filter:drop-shadow(0 2px 6px rgba(0,0,0,.6));z-index:2}
+.spin-trigger{padding:13px 40px;background:var(--a);color:#fff;border:none;border-radius:11px;
+  font-size:15px;font-weight:800;cursor:pointer;transition:all .22s;
+  box-shadow:0 4px 18px rgba(75,130,245,.35);letter-spacing:-.2px}
+.spin-trigger:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 26px rgba(75,130,245,.5)}
+.spin-trigger:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.spin-result-box{width:100%;border-radius:12px;border:1px solid var(--bd);
+  background:var(--sf2);padding:16px 20px;text-align:center;display:none}
+.spin-result-box.show{display:block;animation:resultPop .4s cubic-bezier(.34,1.56,.64,1)}
+.sr-seg{font-size:22px;font-weight:800;margin-bottom:4px;letter-spacing:-.4px}
+.sr-ret{font-size:14px;font-weight:700}
+.sr-impact{font-size:12px;color:var(--mu);margin-top:4px}
+.spin-hist{width:100%;max-height:110px;overflow-y:auto;
+  scrollbar-width:thin;scrollbar-color:var(--bd) transparent}
+.hist-row{display:flex;justify-content:space-between;align-items:center;
+  padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px;color:var(--mu2)}
+.hist-row:last-child{border:none}
+.hist-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--mu);margin-bottom:6px}
+.modal-close{padding:9px 28px;background:transparent;border:1px solid var(--bd2);
+  border-radius:9px;color:var(--mu2);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.modal-close:hover{color:var(--tx);border-color:var(--mu2);background:var(--sf2)}
+</style>
+
+</head>
+<body>
+<header>
+  <a href="/" class="back">← Back</a>
+  <h1>Optimization <em>Results</em></h1>
+</header>
+
+<main>
+  <div id="prow" class="prow"></div>
+
+  <div class="spin-section">
+    <h3>Market Roulette</h3>
+    <p>Stress-test your portfolio with a random market event</p>
+    <button class="spinbtn" onclick="openWheel()">
+      <span class="spinbtn-ico">🎰</span> Spin the Wheel
+    </button>
+  </div>
+</main>
+
+<!-- SPINNING WHEEL MODAL -->
+<div class="modal-backdrop hidden" id="wheelModal">
+  <div class="modal">
+    <div class="modal-title">Market <em>Roulette</em></div>
+    <div class="wheel-wrap">
+      <div class="wheel-ptr"></div>
+      <canvas id="wheelCanvas" width="340" height="340"></canvas>
+    </div>
+    <button class="spin-trigger" id="spinTrigger" onclick="doSpin()">Spin</button>
+    <div class="spin-result-box" id="spinResultBox">
+      <div class="sr-seg" id="srSeg">—</div>
+      <div class="sr-ret" id="srRet">—</div>
+      <div class="sr-impact" id="srImpact">—</div>
+    </div>
+    <div id="spinHistWrap" style="display:none;width:100%">
+      <div class="hist-lbl">Spin History</div>
+      <div class="spin-hist" id="spinHist"></div>
+    </div>
+    <button class="modal-close" onclick="closeWheel()">Close</button>
+  </div>
+</div>
+
+<script>
+// ── WHEEL SEGMENTS — edit these values ──────────────────────────────
+const SEGMENTS = [
+  { label: "Bull Run",    ret:  0.05 },
+  { label: "Correction",  ret: -0.03 },
+  { label: "Crash",       ret: -0.08 },
+  { label: "Steady",      ret:  0.01 },
+  { label: "Boom",        ret:  0.07 },
+  { label: "Recession",   ret: -0.05 },
+  { label: "Recovery",    ret:  0.03 },
+  { label: "Flat",        ret:  0.00 },
+];
+const SEG_COLORS = ['#10d08a','#f59e0b','#f04055','#6366f1','#4b82f5','#ec4899','#14b8a6','#64748b'];
+// ────────────────────────────────────────────────────────────────────
+
+// Gradient palette for allocation bars (top -> bottom spectrum)
+const BAR_PAL = ['#4b82f5','#7c6df5','#9b6bf5','#c44bf5','#ec4899','#f04055','#f59e0b','#10d08a','#14b8a6','#06b6d4'];
+
+const raw = sessionStorage.getItem("optRes");
+if (!raw) { window.location.href = "/"; throw ""; }
+const { portfolio1: p1, portfolio2: p2 } = JSON.parse(raw);
+const isCmp = !!p2;
+
+// Spin state
+const spinAdj = { 1: 0, 2: 0 };
+const spinHistory = [];
+
+const pct = v => (v * 100).toFixed(2) + "%";
+const fmtAdj = v => (v >= 0 ? "+" : "") + (v * 100).toFixed(2) + "%";
+
+function buildCol(port, pNum, cls, accent) {
+  const { optimal: o, min_variance: mv, frontier: fr } = port;
+  const wrows = o.weights.map((w, i) => {
+    const c = BAR_PAL[i % BAR_PAL.length];
+    return `<tr>
+      <td class="w-tick" style="color:${c}">${w.ticker}</td>
+      <td class="w-pct" style="color:${c}">${(w.weight * 100).toFixed(2)}%</td>
+      <td style="width:45%">
+        <div class="bar-bg">
+          <div class="bar-fill" id="bar_${pNum}_${i}"
+            style="--w:${Math.min(w.weight * 100, 100).toFixed(1)}%;width:0%;background:${c}"></div>
+        </div>
+      </td>
+    </tr>`;
+  }).join("");
+
+  return `<div class="pcol">
+    <div class="col-head ${cls}">
+      <div class="col-pip" style="background:${accent};box-shadow:0 0 10px ${accent}88"></div>
+      <h2>Portfolio ${pNum}</h2>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Optimal · Max Sharpe</div>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label">Expected Return</div>
+          <div class="stat-val" style="color:#10d08a" id="retVal${pNum}">${pct(o.return)}</div>
+          <div class="adj-pill" id="adjPill${pNum}">
+            <span id="adjVal${pNum}">—</span>
+          </div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Risk (σ)</div>
+          <div class="stat-val" style="color:#f04055">${pct(o.risk)}</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Sharpe Ratio</div>
+          <div class="stat-val" style="color:${accent}">${parseFloat(o.sharpe).toFixed(4)}</div>
+        </div>
+      </div>
+      <table class="wtable">
+        <thead><tr><th>Ticker</th><th style="text-align:right;padding-right:12px">Weight</th><th>Allocation</th></tr></thead>
+        <tbody>${wrows}</tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Minimum Variance</div>
+      <div class="stats">
+        <div class="stat"><div class="stat-label">Expected Return</div>
+          <div class="stat-val" style="color:#10d08a">${pct(mv.return)}</div></div>
+        <div class="stat"><div class="stat-label">Risk (σ)</div>
+          <div class="stat-val" style="color:#f04055">${pct(mv.risk)}</div></div>
+        <div class="stat"><div class="stat-label">Sharpe Ratio</div>
+          <div class="stat-val" style="color:${accent}">${parseFloat(mv.sharpe).toFixed(4)}</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Efficient Frontier · ${fr.length} points</div>
+      <canvas class="frontier" id="cv${pNum}"></canvas>
+      <div class="legend">
+        <div class="leg"><div class="ldot" style="background:${accent}"></div>Optimal ★</div>
+        <div class="leg"><div class="ldot" style="background:#10d08a"></div>Min Variance</div>
+        <div class="leg"><div class="ldot" style="background:#334155"></div>→<div class="ldot" style="background:${accent};margin-left:4px"></div>Low → High Sharpe</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+const prow = document.getElementById("prow");
+let html = buildCol(p1, 1, "c1", "#4b82f5");
+if (isCmp) html += '<div class="divider"></div>' + buildCol(p2, 2, "c2", "#9b6bf5");
+else prow.classList.add("single");
+prow.innerHTML = html;
+
+setTimeout(() => {
+  [[p1, 1], [p2, 2]].forEach(([port, pNum]) => {
+    if (!port) return;
+    port.optimal.weights.forEach((w, i) => {
+      const el = document.getElementById(`bar_${pNum}_${i}`);
+      if (el) el.style.width = Math.min(w.weight * 100, 100).toFixed(1) + "%";
+    });
+  });
+  drawFrontier("cv1", p1.frontier, p1.optimal, p1.min_variance, "#4b82f5");
+  if (p2) drawFrontier("cv2", p2.frontier, p2.optimal, p2.min_variance, "#9b6bf5");
+}, 80);
+
+// ── FRONTIER CHART ────────────────────────────────────────────────
+function hexRGB(h) {
+  return [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)];
+}
+function drawFrontier(id, fr, opt, mv, accent) {
+  const cv = document.getElementById(id); if (!cv) return;
+  const dpr = window.devicePixelRatio || 1, W = cv.offsetWidth, H = cv.offsetHeight || 220;
+  cv.width = W * dpr; cv.height = H * dpr;
+  const ctx = cv.getContext("2d"); ctx.scale(dpr, dpr);
+  const P = { t:16, r:16, b:38, l:54 }, pw = W-P.l-P.r, ph = H-P.t-P.b;
+  const pts = [...fr].filter(p => isFinite(p.sharpe)).sort((a,b) => a.risk - b.risk);
+  if (!pts.length) return;
+  const xs = pts.map(p=>p.risk), ys = pts.map(p=>p.return), ss = pts.map(p=>p.sharpe);
+  const [xn,xx] = [Math.min(...xs), Math.max(...xs)];
+  const [yn,yx] = [Math.min(...ys), Math.max(...ys)];
+  const [sn,sx] = [Math.min(...ss), Math.max(...ss)];
+  const X = v => P.l + (v-xn)/(xx-xn||1)*pw;
+  const Y = v => P.t + (1-(v-yn)/(yx-yn||1))*ph;
+  const [ar,ag,ab] = hexRGB(accent);
+  ctx.strokeStyle = "rgba(255,255,255,.04)"; ctx.lineWidth = 1;
+  for (let i=1;i<4;i++) {
+    ctx.beginPath(); ctx.moveTo(P.l, P.t+i*ph/4); ctx.lineTo(P.l+pw, P.t+i*ph/4); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(P.l+i*pw/4, P.t); ctx.lineTo(P.l+i*pw/4, P.t+ph); ctx.stroke();
+  }
+  ctx.strokeStyle = "rgba(255,255,255,.1)"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(P.l,P.t); ctx.lineTo(P.l,P.t+ph); ctx.lineTo(P.l+pw,P.t+ph); ctx.stroke();
+  ctx.fillStyle = "#4e6290"; ctx.font = "11px -apple-system,sans-serif"; ctx.textAlign = "center";
+  for (let i=0;i<=4;i++) ctx.fillText(((xn+i*(xx-xn)/4)*100).toFixed(1)+"%", X(xn+i*(xx-xn)/4), P.t+ph+24);
+  ctx.textAlign = "right";
+  for (let i=0;i<=4;i++) ctx.fillText(((yn+i*(yx-yn)/4)*100).toFixed(1)+"%", P.l-6, Y(yn+i*(yx-yn)/4)+4);
+  ctx.textAlign = "center"; ctx.fillText("Risk (σ)", P.l+pw/2, H-3);
+  ctx.save(); ctx.translate(14, P.t+ph/2); ctx.rotate(-Math.PI/2); ctx.fillText("Return", 0, 0); ctx.restore();
+  ctx.beginPath();
+  pts.forEach((p,i) => i===0 ? ctx.moveTo(X(p.risk),Y(p.return)) : ctx.lineTo(X(p.risk),Y(p.return)));
+  ctx.strokeStyle = "rgba(255,255,255,.1)"; ctx.lineWidth = 1.5; ctx.stroke();
+  pts.forEach(p => {
+    const t = sx===sn ? .5 : (p.sharpe-sn)/(sx-sn);
+    ctx.beginPath(); ctx.arc(X(p.risk), Y(p.return), 2.5, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(${Math.round(30+(ar-30)*t)},${Math.round(50+(ag-50)*t)},${Math.round(80+(ab-80)*t)},.9)`;
+    ctx.fill();
+  });
+  ctx.beginPath(); ctx.arc(X(mv.risk), Y(mv.return), 9, 0, Math.PI*2);
+  ctx.fillStyle = "#10d08a"; ctx.fill();
+  ctx.fillStyle = "#fff"; ctx.font = "bold 8px sans-serif"; ctx.textAlign = "center";
+  ctx.fillText("MV", X(mv.risk), Y(mv.return)+3);
+  ctx.beginPath(); ctx.arc(X(opt.risk), Y(opt.return), 10, 0, Math.PI*2);
+  ctx.fillStyle = accent; ctx.fill();
+  ctx.fillStyle = "#fff"; ctx.font = "bold 13px sans-serif"; ctx.textAlign = "center";
+  ctx.fillText("★", X(opt.risk), Y(opt.return)+5);
+}
+
+// ── SPINNING WHEEL ─────────────────────────────────────────────────
+let wAngle = 0, wSpinning = false;
+const PI2 = Math.PI * 2, SEG = PI2 / 8;
+
+function drawWheel(angle) {
+  const cv = document.getElementById("wheelCanvas"); if (!cv) return;
+  const sz = 340, cx = sz/2, cy = sz/2, r = sz/2 - 10;
+  const ctx = cv.getContext("2d"); ctx.clearRect(0, 0, sz, sz);
+  ctx.beginPath(); ctx.arc(cx, cy, r+6, 0, PI2);
+  ctx.strokeStyle = "rgba(255,255,255,.08)"; ctx.lineWidth = 2; ctx.stroke();
+  SEGMENTS.forEach((seg, i) => {
+    const a0 = angle + i*SEG - Math.PI/2, a1 = a0 + SEG;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,a0,a1); ctx.closePath();
+    ctx.fillStyle = SEG_COLORS[i]; ctx.fill();
+    ctx.strokeStyle = "rgba(7,9,26,.5)"; ctx.lineWidth = 2; ctx.stroke();
+    const mid = a0 + SEG/2;
+    const tx = cx + r*.64*Math.cos(mid), ty = cy + r*.64*Math.sin(mid);
+    ctx.save(); ctx.translate(tx, ty); ctx.rotate(mid + Math.PI/2);
+    ctx.fillStyle = "#fff"; ctx.textAlign = "center"; ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = 3;
+    ctx.font = `bold ${sz*.037}px -apple-system,sans-serif`;
+    ctx.fillText(seg.label, 0, 0);
+    const rv = (seg.ret >= 0 ? "+" : "") + (seg.ret*100).toFixed(0) + "%";
+    ctx.font = `${sz*.033}px -apple-system,sans-serif`;
+    ctx.fillStyle = seg.ret >= 0 ? "#d4fce9" : "#ffd1d7";
+    ctx.fillText(rv, 0, sz*.042);
+    ctx.restore();
+  });
+  ctx.beginPath(); ctx.arc(cx, cy, sz*.1, 0, PI2);
+  ctx.fillStyle = "#0f1428"; ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,.12)"; ctx.lineWidth = 2; ctx.stroke();
+  ctx.fillStyle = "#d8e2f8"; ctx.font = `bold ${sz*.05}px -apple-system,sans-serif`;
+  ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.shadowBlur = 0;
+  ctx.fillText("SPIN", cx, cy);
+  ctx.textBaseline = "alphabetic";
+}
+
+function openWheel() {
+  document.getElementById("wheelModal").classList.remove("hidden");
+  drawWheel(wAngle);
+}
+function closeWheel() { document.getElementById("wheelModal").classList.add("hidden"); }
+
+function doSpin() {
+  if (wSpinning) return;
+  wSpinning = true;
+  const btn = document.getElementById("spinTrigger");
+  btn.disabled = true; btn.textContent = "Spinning";
+  document.getElementById("spinResultBox").classList.remove("show");
+
+  const numSpins = 5 + Math.floor(Math.random() * 4);
+  const extraAngle = Math.random() * PI2;
+  const totalSpin = numSpins * PI2 + extraAngle;
+  const finalAngle = wAngle + totalSpin;
+  const offset = ((-finalAngle) % PI2 + PI2) % PI2;
+  const segIdx = Math.floor(offset / SEG) % 8;
+
+  const t0 = performance.now(), dur = 3000, startAngle = wAngle;
+  const ease = t => 1 - Math.pow(1 - t, 4);
+
+  function frame(now) {
+    const t = Math.min((now - t0) / dur, 1);
+    drawWheel(startAngle + totalSpin * ease(t));
+    if (t < 1) { requestAnimationFrame(frame); return; }
+    wAngle = finalAngle;
+    wSpinning = false;
+    btn.disabled = false; btn.textContent = "Spin Again";
+    showLanding(segIdx);
+  }
+  requestAnimationFrame(frame);
+}
+
+function showLanding(segIdx) {
+  const seg = SEGMENTS[segIdx], c = SEG_COLORS[segIdx];
+  spinHistory.unshift({ label: seg.label, ret: seg.ret, color: c });
+  spinAdj[1] += seg.ret;
+  if (p2) spinAdj[2] += seg.ret;
+
+  // Result box
+  const box = document.getElementById("spinResultBox");
+  box.style.borderColor = c;
+  box.classList.add("show");
+  document.getElementById("srSeg").textContent = seg.label;
+  document.getElementById("srSeg").style.color = c;
+  document.getElementById("srRet").textContent =
+    `Return impact: ${seg.ret >= 0 ? "+" : ""}${(seg.ret * 100).toFixed(0)}%`;
+  document.getElementById("srRet").style.color = seg.ret >= 0 ? "#10d08a" : "#f04055";
+  document.getElementById("srImpact").textContent =
+    `Cumulative adjustment: ${(spinAdj[1] * 100).toFixed(1)}%`;
+
+  // History list
+  const hw = document.getElementById("spinHistWrap"), hl = document.getElementById("spinHist");
+  hw.style.display = "block";
+  hl.innerHTML = spinHistory.map(h =>
+    `<div class="hist-row">
+      <span style="color:${h.color}">${h.label}</span>
+      <span style="color:${h.ret>=0?"#10d08a":"#f04055"};font-weight:700">
+        ${h.ret>=0?"+":""}${(h.ret*100).toFixed(0)}%
+      </span>
+    </div>`).join("");
+
+  // Update portfolio stats
+  [1, 2].forEach(pNum => {
+    const port = pNum === 1 ? p1 : p2;
+    if (!port) return;
+    const adj = spinAdj[pNum];
+    const adjReturn = port.optimal.return + adj; // applied as subtraction
+    const pill = document.getElementById("adjPill" + pNum);
+    const val = document.getElementById("adjVal" + pNum);
+    if (!pill || !val) return;
+    pill.classList.add("show");
+    const isPos = adjReturn >= p1.optimal.return;
+    pill.style.background = adj >= 0 ? "rgba(16,208,138,.15)" : "rgba(240,64,85,.15)";
+    pill.style.color = adj >= 0 ? "#10d08a" : "#f04055";
+    val.textContent = "Adj: " + (adjReturn * 100).toFixed(2) + "%";
+  });
+}
+
+document.getElementById("wheelModal").addEventListener("click", e => {
+  if (e.target === document.getElementById("wheelModal")) closeWheel();
+});
+</script>
+</body>
+</html>
