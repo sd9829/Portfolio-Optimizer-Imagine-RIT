@@ -3,20 +3,40 @@ import pandas as pd
 import yfinance as yf
 import cvxpy as cp
 import warnings
-warnings.filterwarnings("ignore")
+from pathlib import Path
+
 
 TRADING_DAYS = 252
 RISK_FREE_RATE = 0.05
 
+_CACHE_FILE = Path(__file__).parent / "cache" / "prices.csv"
+_cache_df = None
 
-def optimize(tickers: list) -> dict | None:
+
+def _load_cache():
+    global _cache_df
+    if _cache_df is not None:
+        return _cache_df
+    if _CACHE_FILE.exists():
+        _cache_df = pd.read_csv(_CACHE_FILE, index_col=0, parse_dates=True)
+    return _cache_df
+
+
+def _get_prices(tickers):
+    cache = _load_cache()
+    if cache is not None:
+        available = [t for t in tickers if t in cache.columns]
+        return cache[available].copy()
+    # fallback: live download if cache was never built
     raw = yf.download(tickers, start="2020-01-01", end="2024-01-01",
                       auto_adjust=True, progress=False)
-
     if isinstance(raw.columns, pd.MultiIndex):
-        price_data = raw["Close"]
-    else:
-        price_data = raw[["Close"]]
+        return raw["Close"]
+    return raw[["Close"]]
+
+
+def optimize(tickers):
+    price_data = _get_prices(tickers)
 
     price_data = price_data.dropna(axis=1, how="all").ffill().dropna()
     if price_data.shape[1] < 2:
@@ -28,13 +48,19 @@ def optimize(tickers: list) -> dict | None:
     n = len(mu)
     tickers_clean = list(price_data.columns)
 
+    min_weight = 0.01
+    max_weight = max(0.33, 1.0 / n)
+
     # Global minimum variance (lower return bound)
     w_mv = cp.Variable(n)
     prob_mv = cp.Problem(
         cp.Minimize(cp.quad_form(w_mv, Sigma)),
-        [cp.sum(w_mv) == 1, w_mv >= 0]
+        [cp.sum(w_mv) == 1, w_mv >= min_weight, w_mv <= max_weight]
     )
-    prob_mv.solve(solver=cp.CLARABEL)
+    try:
+        prob_mv.solve(solver=cp.CLARABEL)
+    except cp.SolverError:
+        return None
     if w_mv.value is None:
         return None
 
@@ -48,9 +74,12 @@ def optimize(tickers: list) -> dict | None:
         w = cp.Variable(n)
         prob = cp.Problem(
             cp.Minimize(cp.quad_form(w, Sigma)),
-            [cp.sum(w) == 1, mu @ w >= tr, w >= 0]
+            [cp.sum(w) == 1, mu @ w >= tr, w >= min_weight, w <= max_weight]
         )
-        prob.solve(solver=cp.CLARABEL)
+        try:
+            prob.solve(solver=cp.CLARABEL)
+        except cp.SolverError:
+            continue
         if prob.status not in ("optimal", "optimal_inaccurate") or w.value is None:
             continue
         wv = w.value
@@ -74,7 +103,7 @@ def optimize(tickers: list) -> dict | None:
 
     weight_list = sorted(
         [{"ticker": t, "weight": round(w, 6)}
-         for t, w in zip(tickers_clean, opt_w) if w > 0.005],
+         for t, w in zip(tickers_clean, opt_w)],
         key=lambda x: x["weight"], reverse=True
     )
 
