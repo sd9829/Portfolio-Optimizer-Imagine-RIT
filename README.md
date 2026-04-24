@@ -213,6 +213,14 @@ Another program is using port 8000 or 3000. Restart your computer and try again.
 
 ---
 
+## Explanation of results
+
+The Max Sharpe Portfolio is the recommended allocation. Its "Annual Return" is what the player would expect to earn (annualized, based on historical data 2020–2024) if they follow those exact weights. That's the number to show the user as "your expected return."
+
+The Min Variance card is more of a reference point — it answers "what's the safest I can be with these stocks?" which is useful context but not the primary recommendation.
+
+---
+
 ## Project Structure (for reference)
 
 ```
