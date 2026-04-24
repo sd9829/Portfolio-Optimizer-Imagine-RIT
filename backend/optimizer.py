@@ -19,7 +19,7 @@ def optimize(tickers: list) -> dict | None:
         price_data = raw[["Close"]]
 
     price_data = price_data.dropna(axis=1, how="all").ffill().dropna()
-    if price_data.shape[1] < 4:
+    if price_data.shape[1] < 2:
         return None
 
     returns = price_data.pct_change().dropna()
@@ -29,7 +29,7 @@ def optimize(tickers: list) -> dict | None:
     tickers_clean = list(price_data.columns)
 
     min_weight = 0.01
-    max_weight = 0.33
+    max_weight = max(0.33, 1.0 / n)
 
     # Global minimum variance (lower return bound)
     w_mv = cp.Variable(n)
