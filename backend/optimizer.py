@@ -3,20 +3,40 @@ import pandas as pd
 import yfinance as yf
 import cvxpy as cp
 import warnings
+from pathlib import Path
 warnings.filterwarnings("ignore")
 
 TRADING_DAYS = 252
 RISK_FREE_RATE = 0.05
 
+_CACHE_FILE = Path(__file__).parent / "cache" / "prices.csv"
+_cache_df: pd.DataFrame | None = None
 
-def optimize(tickers: list) -> dict | None:
+
+def _load_cache() -> pd.DataFrame | None:
+    global _cache_df
+    if _cache_df is not None:
+        return _cache_df
+    if _CACHE_FILE.exists():
+        _cache_df = pd.read_csv(_CACHE_FILE, index_col=0, parse_dates=True)
+    return _cache_df
+
+
+def _get_prices(tickers: list) -> pd.DataFrame:
+    cache = _load_cache()
+    if cache is not None:
+        available = [t for t in tickers if t in cache.columns]
+        return cache[available].copy()
+    # fallback: live download if cache was never built
     raw = yf.download(tickers, start="2020-01-01", end="2024-01-01",
                       auto_adjust=True, progress=False)
-
     if isinstance(raw.columns, pd.MultiIndex):
-        price_data = raw["Close"]
-    else:
-        price_data = raw[["Close"]]
+        return raw["Close"]
+    return raw[["Close"]]
+
+
+def optimize(tickers: list) -> dict | None:
+    price_data = _get_prices(tickers)
 
     price_data = price_data.dropna(axis=1, how="all").ffill().dropna()
     if price_data.shape[1] < 2:
