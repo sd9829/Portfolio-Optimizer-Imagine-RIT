@@ -311,7 +311,7 @@ async function goOpt(){
   if(t1.length<2){err.textContent=cmp?"Portfolio 1 needs ≥ 2 stocks":"Select at least 2 stocks.";return;}
   if(cmp&&t2.length<2){err.textContent="AI Portfolio needs at least 2 stocks.";return;}
   const btn=document.getElementById("optBtn");
-  btn.disabled=true; btn.textContent="Optimizing…";
+  btn.disabled=true; btn.textContent="Optimizing";
   const body={tickers:t1}; if(cmp) body.tickers2=t2;
   const res=await fetch("/optimize",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
   const data=await res.json();
