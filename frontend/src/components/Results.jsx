@@ -20,6 +20,7 @@ export default function Results({ results, selected, onBack }) {
 
   const weightData = optimal.weights.map(w => ({
     ticker: w.ticker,
+    name: w.name || w.ticker,
     weight: +(w.weight * 100).toFixed(2),
   }))
 
@@ -102,7 +103,18 @@ export default function Results({ results, selected, onBack }) {
                 <CartesianGrid strokeDasharray="3 3" stroke="#222" />
                 <XAxis type="number" tickFormatter={v => `${v}%`} stroke="#555" />
                 <YAxis type="category" dataKey="ticker" width={55} stroke="#555" tick={{ fill: '#aaa', fontSize: 13 }} />
-                <Tooltip formatter={v => [`${v}%`, 'Weight']} />
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (!active || !payload?.length) return null
+                    const d = payload[0].payload
+                    return (
+                      <div className="chart-tooltip">
+                        <p><b>{d.name}</b></p>
+                        <p>Weight: <b>{d.weight}%</b></p>
+                      </div>
+                    )
+                  }}
+                />
                 <Bar dataKey="weight" radius={[0, 6, 6, 0]}>
                   {weightData.map((_, i) => (
                     <Cell key={i} fill={`hsl(${200 + i * 22}, 70%, 58%)`} />

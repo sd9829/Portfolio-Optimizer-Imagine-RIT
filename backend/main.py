@@ -45,4 +45,9 @@ def run_optimizer(req: OptimizeRequest):
     result = optimize(req.tickers)
     if result is None:
         raise HTTPException(status_code=422, detail="Optimization failed — try different stocks")
+
+    name_map = df.set_index("Ticker")["Company"].to_dict()
+    for w in result["optimal"]["weights"]:
+        w["name"] = name_map.get(w["ticker"], w["ticker"])
+
     return result
