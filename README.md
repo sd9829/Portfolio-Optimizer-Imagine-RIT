@@ -41,21 +41,12 @@ You should see something like `Python 3.12.3`
 
 ---
 
-### 2. Node.js
+### 2. Flask
 
-Node.js runs the frontend (the visual part of the website).
+Flask runs the frontend (the visual part of the website).
 
-1. Go to **https://nodejs.org**
-2. Click the **"LTS"** button (the left one — it says "Recommended for most users")
-3. Run the installer with all default settings — just keep clicking Next
-4. **Restart PowerShell (Windows) / Terminal (Mac)** after installation finishes
-
-To verify it worked, open a fresh PowerShell (Windows) / Terminal (Mac) and type:
-```
-node --version
-npm --version
-```
-Both should print version numbers (e.g. `v20.11.0` and `10.2.4`)
+In your terminal or virutal environment -> 
+pip install Flask
 
 ---
 
@@ -85,80 +76,28 @@ Mac:
 cd ~/GitHub/Portfolio-Optimizer-Imagine-RIT/backend
 ```
 
-Windows:
-```
-py -m pip install -r requirements.txt
-```
-Mac:
-```
-pip3 install -r requirements.txt
-```
 
-> This installs the required Python libraries. You only need to do this once — skip it next time.
-
-Windows:
-```
-py -m uvicorn main:app --reload --port 8000
-```
-Mac:
-```
-uvicorn main:app --reload --port 8000
-```
+To run the server->
+python -u /backend/main.py
 
 You should see output like:
 ```
-INFO:     Uvicorn running on http://127.0.0.1:8000
+INFO:     Uvicorn running on http://127.0.0.1:5000
 INFO:     Application startup complete.
 ```
 
 **Leave this window open.** Do not close it while using the app.
 
----
 
-### Step 3 — Start the Frontend (the visual interface)
 
-Open a **second PowerShell (Windows) / Terminal (Mac) window**.
 
-Windows: right-click PowerShell in the taskbar → "New window"
-Mac: press `Cmd + T` to open a new tab in Terminal, or open a new Terminal window
-
-Paste these commands one at a time:
-
-Windows:
-```
-cd C:\GitHub\Portfolio-Optimizer-Imagine-RIT\frontend
-```
-Mac:
-```
-cd ~/GitHub/Portfolio-Optimizer-Imagine-RIT/frontend
-```
-```
-npm install
-```
-
-> This installs the required JavaScript libraries. You only need to do this once — skip it next time.
-
-```
-npm run dev
-```
-
-You should see output like:
-```
-  VITE v5.4.2  ready in 300 ms
-
-  ➜  Local:   http://localhost:3000/
-```
-
-**Leave this window open too.**
-
----
 
 ### Step 4 — Open the App in Your Browser
 
 Open any browser (Chrome, Edge, Firefox) and go to:
 
 ```
-http://localhost:3000
+http://localhost:5000
 ```
 
 The app will load and you'll see all 108 companies as bubbles grouped by sector.
@@ -222,17 +161,13 @@ Portfolio-Optimizer-Imagine-RIT/
 │   ├── main.py                ← API server
 │   ├── optimizer.py           ← portfolio optimization logic
 │   └── requirements.txt       ← Python library list
-│
-├── frontend/                  ← Visual web interface
-│   ├── src/
-│   │   ├── App.jsx            ← main app logic
-│   │   ├── components/
-│   │   │   ├── BubblePicker.jsx   ← interactive bubble chart
-│   │   │   └── Results.jsx        ← results charts
-│   └── package.json           ← JavaScript library list
+|   └── Final_Companies_with_Latest_Prices.xlsx   ← company data
+|    ├── Templates/
+│        ├── index.html
+│        ├── results.html
 │
 ├── portfolio-optimizer.py     ← original standalone script
-└── Final_Companies_with_Latest_Prices.xlsx   ← company data
+
 ```
 
 ---
@@ -243,7 +178,4 @@ Portfolio-Optimizer-Imagine-RIT/
 |------|-----------|--------------|
 | Optimization math | Python + CVXPY | Solves the portfolio optimization problem |
 | Price data | yfinance | Downloads historical stock prices from Yahoo Finance |
-| API server | FastAPI | Connects the math to the frontend |
-| Bubble chart | D3.js | Force-directed interactive bubble layout |
-| Result charts | Recharts | Efficient frontier and weight bar charts |
-| Frontend framework | React + Vite | Builds the visual interface |
+| Frontend framework | Flask + JS + CSS | Builds the visual interface |
