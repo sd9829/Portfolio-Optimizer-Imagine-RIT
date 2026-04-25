@@ -92,7 +92,7 @@ INFO:     Application startup complete.
 
 
 
-### Step 4 — Open the App in Your Browser
+### Step 3 — Open the App in Your Browser
 
 Open any browser (Chrome, Edge, Firefox) and go to:
 
