@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import BubblePicker from './components/BubblePicker'
 import Results from './components/Results'
+import FightAI from './components/FightAI'
 
 export default function App() {
+  const [mode, setMode] = useState('personal')  // 'personal' | 'fight-ai'
   const [companies, setCompanies] = useState(null)
   const [selected, setSelected] = useState(new Set())
   const [results, setResults] = useState(null)
@@ -50,6 +52,11 @@ export default function App() {
     setError(null)
   }
 
+  if (mode === 'fight-ai') {
+    if (!companies) return <div className="loading-center">Loading companies…</div>
+    return <FightAI companies={companies} onBack={() => setMode('personal')} />
+  }
+
   if (results) {
     return <Results results={results} selected={selected} onBack={reset} />
   }
@@ -65,6 +72,12 @@ export default function App() {
           </p>
         </div>
         <div className="header-right">
+          <button
+            className="btn-fight-ai"
+            onClick={() => setMode('fight-ai')}
+          >
+            Lemme Fight AI
+          </button>
           <span className="selected-count">
             {selected.size} stock{selected.size !== 1 ? 's' : ''} selected
           </span>

@@ -364,3 +364,75 @@ body {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+/* ── Fight AI trigger button (in main header) ── */
+.btn-fight-ai {
+  background: linear-gradient(135deg, #c026d3, #7c3aed);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.btn-fight-ai:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+/* ── Fight AI screen ── */
+.fight-container {
+  display: flex;
+  height: 100vh;
+  background: #0f0f0f;
+  overflow: hidden;
+}
+
+.fight-half {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* bubble-container inside a fight-half fills the remaining space */
+.fight-half .bubble-container {
+  flex: 1;
+}
+
+.fight-divider {
+  width: 1px;
+  background: #1e1e1e;
+  flex-shrink: 0;
+}
+
+.fight-half-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: #111;
+  border-bottom: 1px solid #1e1e1e;
+  flex-shrink: 0;
+}
+
+.fight-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.fight-title-ai { background: linear-gradient(135deg, #c026d3, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+.fight-count {
+  font-size: 12px;
+  color: #666;
+  min-width: 70px;
+  text-align: right;
+}

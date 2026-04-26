@@ -2,22 +2,18 @@ import { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
 
 const SECTOR_COLORS = {
-  'Information Technology': '#4f8ef7',
-  'Health Care':            '#e05c5c',
-  'Financials':             '#c084fc',
-  'Consumer Discretionary': '#f5a623',
-  'Consumer Staples':       '#a78bfa',
-  'Energy':                 '#fb923c',
-  'Industrials':            '#34d399',
-  'Materials':              '#f472b6',
-  'Real Estate':            '#60a5fa',
-  'Communication Services': '#4ade80',
-  'Utilities':              '#94a3b8',
+  'Information Technology': '#4f8ef7',  // blue
+  'Health Care':            '#e05c5c',  // red
+  'Financials':             '#c084fc',  // purple
+  'Consumer Discretionary': '#f5a623',  // amber
+  'Consumer Staples':       '#a3e635',  // lime
+  'Energy':                 '#fde047',  // yellow
+  'Industrials':            '#34d399',  // emerald
+  'Materials':              '#f472b6',  // pink
+  'Real Estate':            '#fb923c',  // orange
+  'Communication Services': '#06b6d4',  // cyan
+  'Utilities':              '#94a3b8',  // gray
 }
-
-const W    = 2000
-const H    = 1350
-const COLS = 4
 
 function wrapName(name, r) {
   const maxChars = Math.floor(r * 0.32)
@@ -41,7 +37,7 @@ function wrapName(name, r) {
   return lines
 }
 
-export default function BubblePicker({ companies, selected, onToggle }) {
+export default function BubblePicker({ companies, selected, onToggle, cols = 4 }) {
   const containerRef = useRef(null)
   const svgRef       = useRef(null)
   const onToggleRef  = useRef(onToggle)
@@ -52,15 +48,25 @@ export default function BubblePicker({ companies, selected, onToggle }) {
     if (!companies || !svgRef.current) return
 
     const sectorList = Object.keys(companies)
-    const ROWS = Math.ceil(sectorList.length / COLS)
-    const cellW = W / COLS
-    const cellH = H / ROWS
+    const ROWS = Math.ceil(sectorList.length / cols)
+
+    let W, cellW, cellH, H
+    if (cols === 4) {
+      W = 2000; H = 1350
+      cellW = W / cols
+      cellH = H / ROWS
+    } else {
+      W = containerRef.current?.clientWidth || cols * 500
+      cellW = W / cols
+      cellH = Math.round(cellW * 0.9)
+      H = cellH * ROWS
+    }
 
     const sectorCenters = {}
     sectorList.forEach((s, i) => {
       sectorCenters[s] = {
-        x: (i % COLS + 0.5) * cellW,
-        y: (Math.floor(i / COLS) + 0.5) * cellH,
+        x: (i % cols + 0.5) * cellW,
+        y: (Math.floor(i / cols) + 0.5) * cellH,
       }
     })
 
@@ -191,7 +197,7 @@ export default function BubblePicker({ companies, selected, onToggle }) {
       sim.stop()
       tooltip.remove()
     }
-  }, [companies])
+  }, [companies, cols])
 
   useEffect(() => {
     if (!svgRef.current) return
@@ -203,7 +209,7 @@ export default function BubblePicker({ companies, selected, onToggle }) {
 
   return (
     <div ref={containerRef} className="bubble-container">
-      <div className="bubble-scroll">
+      <div className="bubble-scroll" style={cols !== 4 ? { minWidth: 0 } : undefined}>
         <svg ref={svgRef} />
       </div>
     </div>
