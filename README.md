@@ -9,7 +9,12 @@ An interactive web app that lets you pick stocks from 11 sectors and find the ma
 1. Shows all 108 companies grouped by industry as clickable bubbles
 2. You click the stocks you want to include
 3. The app runs a quadratic optimization algorithm on your selection
-4. It shows you the best possible portfolio — maximum return per unit of risk (Sharpe ratio), with no short selling allowed
+4. It shows you the best possible portfolio — maximum return per unit of risk (Sharpe ratio), with no short selling allowed (the weights assigned to all stocks are in the range of 1-33%).
+
+### You also have the option to compete with AI by selecting "Lemme fight AI" option on the right top corner.
+
+1. This lets you select your stocks and also have some genAI select stocks from the same list within the same indesutries, but the choice is GenAI's.
+2. Then on selecting "Optimize Portfolio" you get the returns for stocks you chose, and the ones AI chose! 
 
 ---
 
