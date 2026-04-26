@@ -200,7 +200,7 @@ The app opens directly on the stock bubble picker. Two modes are available.
 Click **"Lemme Fight AI"** in the top-right header to enter competition mode.
 
 - The screen splits in half — **User's Choices** on the left, **AI's Choices** on the right
-- Select your stocks on the left and a competing portfolio on the right
+- Select your stocks on the left and a competing portfolio on the right (GenAI was used to select stocks from the same industry as the ones User was choosing during the ImagineRIT exhibition)
 - A stock claimed by one side is **dimmed and unclickable** on the other side — the two portfolios must be distinct
 - Both sides need at least 2 stocks selected before **"Optimize Both →"** becomes active
 - Results are shown side by side with the same metrics as personal mode
