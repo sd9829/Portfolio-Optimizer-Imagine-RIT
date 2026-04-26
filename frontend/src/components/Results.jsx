@@ -3,7 +3,10 @@ import PortfolioCard from './PortfolioCard'
 import SpinWheel from './SpinWheel'
 
 export default function Results({ results, onBack }) {
-  const [showWheel, setShowWheel] = useState(false)
+  const [showWheel,  setShowWheel]  = useState(false)
+  const [returnAdj,  setReturnAdj]  = useState(0)
+
+  const adjReturn = returnAdj !== 0 ? results.optimal.return + returnAdj : null
 
   return (
     <div className="res-page">
@@ -15,7 +18,7 @@ export default function Results({ results, onBack }) {
       </header>
 
       <div className="res-main res-single">
-        <PortfolioCard result={results} accent="#4b82f5" />
+        <PortfolioCard result={results} accent="#4b82f5" adjReturn={adjReturn} />
       </div>
 
       <div className="res-spin-section">
@@ -26,7 +29,13 @@ export default function Results({ results, onBack }) {
         </button>
       </div>
 
-      {showWheel && <SpinWheel onClose={() => setShowWheel(false)} />}
+      {showWheel && (
+        <SpinWheel
+          onClose={() => setShowWheel(false)}
+          userReturn={results.optimal.return}
+          onAdjust={setReturnAdj}
+        />
+      )}
     </div>
   )
 }

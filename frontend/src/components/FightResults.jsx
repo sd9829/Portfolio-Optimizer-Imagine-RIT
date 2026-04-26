@@ -2,8 +2,11 @@ import { useState } from 'react'
 import PortfolioCard from './PortfolioCard'
 import SpinWheel from './SpinWheel'
 
-export default function FightResults({ userResults, aiResults, onBack }) {
+export default function FightResults({ userResults, aiResults, userTickers, aiTickers, onBack }) {
   const [showWheel, setShowWheel] = useState(false)
+  const [returnAdj, setReturnAdj] = useState(0)
+
+  const adjReturn = returnAdj !== 0 ? userResults.optimal.return + returnAdj : null
 
   return (
     <div className="res-page">
@@ -18,9 +21,14 @@ export default function FightResults({ userResults, aiResults, onBack }) {
         <div className="res-col">
           <div className="res-col-head" style={{ borderBottomColor: '#4b82f5' }}>
             <div className="res-col-pip" style={{ background: '#4b82f5', boxShadow: '0 0 10px #4b82f588' }} />
-            <h2>Your Portfolio</h2>
+            <div>
+              <h2>Your Portfolio</h2>
+              {userTickers && (
+                <div className="res-col-tickers">{userTickers.join(' · ')}</div>
+              )}
+            </div>
           </div>
-          <PortfolioCard result={userResults} accent="#4b82f5" />
+          <PortfolioCard result={userResults} accent="#4b82f5" adjReturn={adjReturn} />
         </div>
 
         <div className="res-vdivider" />
@@ -28,7 +36,12 @@ export default function FightResults({ userResults, aiResults, onBack }) {
         <div className="res-col">
           <div className="res-col-head" style={{ borderBottomColor: '#9b6bf5' }}>
             <div className="res-col-pip" style={{ background: '#9b6bf5', boxShadow: '0 0 10px #9b6bf588' }} />
-            <h2>AI's Portfolio</h2>
+            <div>
+              <h2>AI's Portfolio</h2>
+              {aiTickers && (
+                <div className="res-col-tickers">{aiTickers.join(' · ')}</div>
+              )}
+            </div>
           </div>
           <PortfolioCard result={aiResults} accent="#9b6bf5" />
         </div>
@@ -42,7 +55,13 @@ export default function FightResults({ userResults, aiResults, onBack }) {
         </button>
       </div>
 
-      {showWheel && <SpinWheel onClose={() => setShowWheel(false)} />}
+      {showWheel && (
+        <SpinWheel
+          onClose={() => setShowWheel(false)}
+          userReturn={userResults.optimal.return}
+          onAdjust={setReturnAdj}
+        />
+      )}
     </div>
   )
 }

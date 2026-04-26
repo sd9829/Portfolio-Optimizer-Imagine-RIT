@@ -84,8 +84,9 @@ function FrontierChart({ frontier, optimal, minVariance, accent }) {
   return <canvas ref={canvasRef} className="res-frontier-canvas" />
 }
 
-export default function PortfolioCard({ result, accent }) {
+export default function PortfolioCard({ result, accent, adjReturn }) {
   const { optimal, min_variance, frontier } = result
+  const hasAdj = adjReturn != null && adjReturn !== optimal.return
 
   return (
     <>
@@ -95,6 +96,15 @@ export default function PortfolioCard({ result, accent }) {
           <div className="res-stat">
             <div className="res-stat-label">Expected Return</div>
             <div className="res-stat-val" style={{ color: '#10d08a' }}>{pct(optimal.return)}</div>
+            {hasAdj && (
+              <div
+                className="res-adj-pill"
+                style={{ background: adjReturn >= optimal.return ? 'rgba(16,208,138,.15)' : 'rgba(240,64,85,.15)',
+                         color:      adjReturn >= optimal.return ? '#10d08a' : '#f04055' }}
+              >
+                Market adj: {pct(adjReturn)}
+              </div>
+            )}
           </div>
           <div className="res-stat">
             <div className="res-stat-label">Risk (σ)</div>

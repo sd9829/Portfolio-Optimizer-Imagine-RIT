@@ -167,24 +167,63 @@ The app will load and you'll see all 108 companies as bubbles grouped by sector.
 
 ## How to Use the App
 
-### Picking Stocks
-- Each **bubble** is a company — hover over it to see the company name, ticker, and price
-- **Click a bubble** to select it — it will glow with a white ring
+The app opens directly on the stock bubble picker. Two modes are available.
+
+---
+
+### Mode 1 — Personal Portfolio Optimizer
+
+**Picking Stocks**
+- Each **bubble** is a company — hover over it to see the ticker and live price
+- **Click a bubble** to select it — it glows with a white ring
 - **Click it again** to deselect
-- Select stocks from as many or as few sectors as you like
 - You need at least **2 stocks** selected to run the optimizer
 
-### Running the Optimizer
-- Once you have 2 or more stocks selected, the **"Optimize Portfolio"** button in the top-right becomes active
-- Click it — optimization takes about **30 seconds** (it downloads 4 years of price data and solves the math)
-- A loading screen will appear while it works
+**Running the Optimizer**
+- Once you have 2 or more stocks selected, the **"Optimize Portfolio →"** button in the top-right becomes active
+- Click it — takes about **30 seconds** (downloads 4 years of price data and solves the quadratic program)
 
-### Reading the Results
-- **Max Sharpe Portfolio** — the best return-to-risk ratio possible with your chosen stocks
-- **Min Variance Portfolio** — the lowest risk possible with your chosen stocks
-- **Efficient Frontier chart** — every point is a valid portfolio; the red star is the optimal one
-- **Weight bar chart** — how much of your money to put in each stock
-- Click **"Back to picker"** to go back and try a different selection
+**Reading the Results**
+- **Optimal · Max Sharpe** — best return-to-risk ratio; includes a weighted allocation table for each stock
+- **Minimum Variance** — lowest possible risk with your chosen stocks
+- **Efficient Frontier** — every point on the curve is a valid portfolio; the star is the optimal, the green dot is minimum variance
+
+---
+
+### Mode 2 — Lemme Fight AI
+
+Click **"Lemme Fight AI"** in the top-right header to enter competition mode.
+
+- The screen splits in half — **User's Choices** on the left, **AI's Choices** on the right
+- Select your stocks on the left and a competing portfolio on the right
+- A stock claimed by one side is **dimmed and unclickable** on the other side — the two portfolios must be distinct
+- Both sides need at least 2 stocks selected before **"Optimize Both →"** becomes active
+- Results are shown side by side with the same metrics as personal mode
+
+---
+
+### Market Roulette
+
+After any optimization, a **"Spin the Wheel"** button appears at the bottom of the results page.
+
+The wheel has 8 historically-grounded market events:
+
+| Event | Return Impact |
+|-------|--------------|
+| 1999 Dot-Com Frenzy | +7% |
+| 2017 FAANG Rally | +5% |
+| 2021 Meme Stock Mania | +3% |
+| 1995 Goldilocks Economy | +1% |
+| 2011 US Debt Ceiling Crisis | 0% |
+| 2022 Fed Rate Shock | −3% |
+| 2020 COVID Crash | −5% |
+| 2008 Lehman Collapse | −8% |
+
+When the wheel lands:
+- The result is shown with the historical context of that event
+- **Your portfolio's expected return is adjusted** by the event's return impact and updated live in the results card
+- Adjustments are **cumulative** across multiple spins in the same session
+- In Fight AI mode, **only your portfolio is affected** — the AI's results are never touched
 
 ---
 
@@ -226,21 +265,23 @@ The Min Variance card is more of a reference point — it answers "what's the sa
 ```
 Portfolio-Optimizer-Imagine-RIT/
 │
-├── backend/                   ← Python math engine
-│   ├── main.py                ← API server
-│   ├── optimizer.py           ← portfolio optimization logic
-│   └── requirements.txt       ← Python library list
+├── backend/
+│   ├── main.py                ← FastAPI server + threading lock for yf.download
+│   ├── optimizer.py           ← quadratic portfolio optimization (CVXPY)
+│   └── requirements.txt
 │
-├── frontend/                  ← Visual web interface
-│   ├── src/
-│   │   ├── App.jsx            ← main app logic
-│   │   ├── components/
-│   │   │   ├── BubblePicker.jsx   ← interactive bubble chart
-│   │   │   └── Results.jsx        ← results charts
-│   └── package.json           ← JavaScript library list
+├── frontend/src/
+│   ├── App.jsx                ← top-level routing (personal / fight-AI modes)
+│   ├── App.css                ← all styles
+│   └── components/
+│       ├── BubblePicker.jsx   ← D3 force-directed bubble chart (supports blocked tickers)
+│       ├── Results.jsx        ← single-portfolio results page
+│       ├── PortfolioCard.jsx  ← shared stats + weights table + frontier canvas
+│       ├── FightAI.jsx        ← split-screen stock selection + sequential optimization
+│       ├── FightResults.jsx   ← side-by-side results for fight mode
+│       └── SpinWheel.jsx      ← Market Roulette wheel with historical events
 │
-├── portfolio-optimizer.py     ← original standalone script
-└── Final_Companies_with_Latest_Prices.xlsx   ← company data
+└── Final_Companies_with_Latest_Prices.xlsx   ← company and price data
 ```
 
 ---
@@ -249,9 +290,9 @@ Portfolio-Optimizer-Imagine-RIT/
 
 | Part | Technology | What it does |
 |------|-----------|--------------|
-| Optimization math | Python + CVXPY | Solves the portfolio optimization problem |
+| Optimization math | Python + CVXPY | Solves the quadratic portfolio optimization problem |
 | Price data | yfinance | Downloads historical stock prices from Yahoo Finance |
-| API server | FastAPI | Connects the math to the frontend |
+| API server | FastAPI | Connects the math engine to the frontend |
 | Bubble chart | D3.js | Force-directed interactive bubble layout |
-| Result charts | Recharts | Efficient frontier and weight bar charts |
+| Frontier chart | Canvas 2D API | Custom efficient frontier plot |
 | Frontend framework | React + Vite | Builds the visual interface |

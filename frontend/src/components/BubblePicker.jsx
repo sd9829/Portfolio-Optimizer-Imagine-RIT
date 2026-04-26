@@ -37,12 +37,14 @@ function wrapName(name, r) {
   return lines
 }
 
-export default function BubblePicker({ companies, selected, onToggle, cols = 4 }) {
+export default function BubblePicker({ companies, selected, onToggle, blocked = new Set(), cols = 4 }) {
   const containerRef = useRef(null)
   const svgRef       = useRef(null)
   const onToggleRef  = useRef(onToggle)
+  const blockedRef   = useRef(blocked)
 
   useEffect(() => { onToggleRef.current = onToggle }, [onToggle])
+  useEffect(() => { blockedRef.current  = blocked  }, [blocked])
 
   useEffect(() => {
     if (!companies || !svgRef.current) return
@@ -140,7 +142,10 @@ export default function BubblePicker({ companies, selected, onToggle, cols = 4 }
           .style('top',  `${event.clientY - rect.top  - 48}px`)
       })
       .on('mouseout', () => tooltip.style('opacity', 0))
-      .on('click', (event, d) => onToggleRef.current(d.ticker))
+      .on('click', (event, d) => {
+        if (blockedRef.current.has(d.ticker)) return
+        onToggleRef.current(d.ticker)
+      })
 
     // Company name + price labels
     const labels = svg.selectAll('.bubble-label')
@@ -204,8 +209,9 @@ export default function BubblePicker({ companies, selected, onToggle, cols = 4 }
     d3.select(svgRef.current).selectAll('.bubble')
       .attr('stroke',       d => selected.has(d.ticker) ? '#ffffff' : 'transparent')
       .attr('stroke-width', d => selected.has(d.ticker) ? 3.5 : 0)
-      .attr('opacity',      d => selected.has(d.ticker) ? 1 : 0.72)
-  }, [selected])
+      .attr('opacity',      d => selected.has(d.ticker) ? 1 : blocked.has(d.ticker) ? 0.2 : 0.72)
+      .style('cursor',      d => blocked.has(d.ticker) ? 'not-allowed' : 'pointer')
+  }, [selected, blocked])
 
   return (
     <div ref={containerRef} className="bubble-container">

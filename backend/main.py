@@ -5,6 +5,7 @@ from pydantic import BaseModel
 import pandas as pd
 import yfinance as yf
 import time
+import threading
 from optimizer import optimize
 
 app = FastAPI()
@@ -23,6 +24,7 @@ df.columns = df.columns.str.strip()
 _price_cache: dict = {}
 _cache_time: float = 0.0
 _CACHE_TTL = 300  # seconds
+_optimize_lock = threading.Lock()  # yf.download is not thread-safe under concurrency
 
 
 def _fetch_live_prices() -> dict:
@@ -64,7 +66,8 @@ class OptimizeRequest(BaseModel):
 def run_optimizer(req: OptimizeRequest):
     if len(req.tickers) < 2:
         raise HTTPException(status_code=400, detail="Select at least 2 stocks")
-    result = optimize(req.tickers)
+    with _optimize_lock:
+        result = optimize(req.tickers)
     if result is None:
         raise HTTPException(status_code=422, detail="Optimization failed — try different stocks")
 
