@@ -209,7 +209,7 @@ Click **"Lemme Fight AI"** in the top-right header to enter competition mode.
 
 ### Market Roulette
 
-After any optimization, a **"Spin the Wheel"** button appears at the bottom of the results page.
+After any optimization, a **"Spin the Wheel"** button appears at the bottom of the results page. This was a fun little option we had added for our players at ImagineRIT if their portfolio and choices won against AI's. This gave them the option of maybe getting even higher returns, or possibly lose some more money - the wheel decided your fate!!
 
 The wheel has 8 historically-grounded market events:
 
