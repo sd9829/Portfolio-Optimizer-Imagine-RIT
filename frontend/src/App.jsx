@@ -58,7 +58,7 @@ export default function App() {
   }
 
   if (results) {
-    return <Results results={results} selected={selected} onBack={reset} />
+    return <Results results={results} onBack={reset} />
   }
 
   return (
